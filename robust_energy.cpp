@@ -14,27 +14,93 @@ using namespace lemon;
 using namespace std;
 
 Graph::Graph(int n, double erdos_p) : n_{n}, erdos_edge_possible_{erdos_p}, edge_number_{0} {
-		vector<ListDigraph::Node> nodes;
-		FOR(i,n_) {
-			nodes.push_back(g.addNode());
+	vector<ListDigraph::Node> nodes;
+	FOR(i,n_) {
+		nodes.push_back(g.addNode());
+	}
+	
+	//Erdős-Renyi Graph Model
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	std::discrete_distribution<> distrib({1-erdos_p, erdos_p});
+	FOR(i,n_) {
+		FOR(j,n_) {
+		//for(int j = i; j < n_; ++j) {
+			if(distrib(gen) && i != j)
+				{g.addArc(nodes[i], nodes[j]); ++edge_number_;}
 		}
+	}
 		
-		//Erdős-Renyi Graph Model
-		std::random_device rd;  //Will be used to obtain a seed for the random number engine
-		std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-		std::discrete_distribution<> distrib({1-erdos_p, erdos_p});
-		FOR(i,n_) {
-			FOR(j,n_) {
-			//for(int j = i; j < n_; ++j) {
-				if(distrib(gen) && i != j)
-					{g.addArc(nodes[i], nodes[j]); ++edge_number_;}
-			}
+}
+
+Graph::Graph(std::istream &is) : edge_number_{0} {
+	//Input format of the graph
+	//First line number of vertcies n
+	// Next is n lines in the ith one the outvertex number and the edgelist of i
+	is >> n_;
+	vector<ListDigraph::Node> nodes;
+	FOR(i,n_) {
+		nodes.push_back(g.addNode());
+	}
+
+	FOR(i,n_) {
+		int outvertex; is >> outvertex;
+		edge_number_ += outvertex;
+		FOR(j,outvertex) {
+			int out; is >> out;
+			g.addArc(nodes[i], nodes[out]);
 		}
-		
+	}
 }
 
 Paths::Paths(int people, int n, double erdos_p): people_n_{people}, max_earn_{INF}, Graph{n, erdos_p} {
 	RandomPaths();
+}
+
+Paths::Paths(std::istream &is) : Graph(is) {
+	//The first input is the arc_buy_p_
+	// then peoples destination with first how many people are there
+	// The polyhedra of Q and U
+	// A polyhedra is written in the following way
+	// First line is the number of inequalities
+	// the ith line starts with the number of variables in the inequalities, then
+	// the numbers are the x variable in the inequality  // the numbers are in the following form "alpha x", where alpha is the coefficient of x 
+	// the final number on the line is the upper limit of the inequality
+	if(DEBUG) cerr << "Graph is in" << endl;
+	PrintData();
+
+	//arc_buy_p_
+		FOR(i,edge_number_) {
+			double cost_p; is >> cost_p;
+			arc_buy_p_[g.arcFromId(i)] = cost_p;
+		}
+
+	//Peoples paths
+		is >> people_n_;
+		FOR(i,people_n_) {
+			int t1, t2; is >> t1 >> t2;
+			paths_.push_back(make_pair(t1, t2));
+		}
+
+	//Q
+		int lines; is >> lines; defining_polyhedra_q_.resize(lines);
+		FOR(i,lines) {
+			int variab; is >> variab;
+			FOR(_j,variab+1) {
+				int t; is >> t;
+				defining_polyhedra_q_[i].push_back(t);
+			}
+		}
+	
+	//U
+		is >> lines; defining_polyhedra_u_.resize(lines);
+		FOR(i,lines) {
+			int variab; is >> variab;
+			FOR(_j,variab+1) {
+				int t; is >> t;
+				defining_polyhedra_u_[i].push_back(t);
+			}
+		}
 }
 
 pair<int,int> Paths::RandomPath() {
@@ -350,7 +416,7 @@ void Paths::FindingOptimalCost(int many_ineq_q, double prob_q, double max_q, int
 		
 	//Creating the polyhedron for u
 		CreatingUPolyhedra(many_ineq_u, prob_u, max_u, os);
-		
+
 	//Random p_buying value from original vendor
 		double max_val_q = 10;
 		std::random_device rd;  //Will be used to obtain a seed for the random number engine
@@ -361,6 +427,13 @@ void Paths::FindingOptimalCost(int many_ineq_q, double prob_q, double max_q, int
 			arc_buy_p_[e] = d_p(gen);
 		}
 	
+	if(DEBUG) os << "CREATED arc_buy_p_" << endl;
+
+	PrintData();
+	ofstream fout("out_robust_data.txt");
+	PrintDataRaw(fout);
+	fout.close();
+
 	//Perturbation of q TODO
 	//Section 3.4. Solver
 		vector<double> q_tariff;
@@ -381,13 +454,33 @@ void Paths::PrintData(std::ostream &os) {
 	}
 	os << "Number of people travelling: " << people_n_ << endl;
 	os << "Their starting and end points: " << endl;
-	Print_vector_pairs(paths_);
+	Print_vector_pairs(paths_, os);
 	
 	os << "The defining polyhedra for q:" << endl;
-	Print_Matrix(defining_polyhedra_q_);
+	Print_Matrix(defining_polyhedra_q_, os);
 
 	os << "The defining polyhedra for u:" << endl;
-	Print_Matrix(defining_polyhedra_u_);
+	Print_Matrix(defining_polyhedra_u_, os);
 }
 
-    
+void Paths::PrintDataRaw(std::ostream &os) {
+	os << n_ << endl;
+	FOR(i,n_) {
+		int out = 0;
+		for (ListDigraph::OutArcIt a(g, g.nodeFromId(i)); a != INVALID; ++a) {
+			++out;
+		}
+		os << out << " ";
+		for (ListDigraph::OutArcIt a(g, g.nodeFromId(i)); a != INVALID; ++a) {
+			os << g.id(g.target(a)) << " ";
+		}
+		os << endl;
+	}
+	for (ListDigraph::ArcIt e(g); e != INVALID; ++e) {
+		os << arc_buy_p_[e] << " ";
+	}
+	os << people_n_ << endl;
+	Print_vector_pairs_raw(paths_, os);
+	Print_Matrix(defining_polyhedra_q_, os);
+	Print_Matrix(defining_polyhedra_u_, os);
+}   
