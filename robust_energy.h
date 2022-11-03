@@ -21,7 +21,9 @@ class Graph{
 		double erdos_edge_possible_;
 		ListDigraph g;
 		
-		Graph(int n, double erdos_p);
+		Graph(int n, double erdos_p); //You read the input more specially D graph
+
+		Graph(std::istream &is);
 };
 
 
@@ -37,6 +39,8 @@ class Paths : public Graph {
 		double max_earn_;
 		
 		Paths(int people, int n, double erdos_p);
+
+		Paths(std::istream &is); //You read the input more specially D graph, paths of the people, arc_cost_buy_p, Q polyhedra, U polyhedra
 		
 		pair<int,int> RandomPath();
 		
@@ -67,11 +71,13 @@ class Paths : public Graph {
 		void FindingOptimalCost(int many_ineq_q, double prob_q, double max_q, int many_ineq_u, double prob_u, double max_u, std::ostream &os = std::cerr);
 		
 		void PrintData(std::ostream &os = std::cerr);
+
+		void PrintDataRaw(std::ostream &os);
     
     
 };
 
-#endif ROBUST_PATH
+#endif //ROBUST_PATH
 
 #ifndef UTILITY_TOOLS
 #define UTILITY_TOOLS
@@ -95,6 +101,7 @@ void Print_vector(const C &Original, std::ostream &os = std::cerr) {
 template <class C>
 void Print_Matrix(const vector<vector<C>> &M, std::ostream &os = std::cerr) {
 	for(auto &v : M) {
+		os << v.size() << " ";
 		for(auto &u : v) {
 			os << u; os << " ";            
 			}
@@ -111,6 +118,14 @@ template <class C>
 void Print_vector_pairs(const C &Original, std::ostream &os = std::cerr) {
 	for(const auto &v : Original) {
 	    Print_pair(v, os);
+	}
+	os << endl;
+}
+
+template <class C>
+void Print_vector_pairs_raw(const C &Original, std::ostream &os = std::cerr) {
+	for(const auto &v : Original) {
+	    os << v.first << " " << v.second << " ";
 	}
 	os << endl;
 }
