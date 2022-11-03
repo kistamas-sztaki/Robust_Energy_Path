@@ -16,8 +16,18 @@ using namespace lemon;
 
 
 int main() {
-	Paths Test(1, 10, 0.1);
+	
+	ifstream fin("input_robust_path.txt");
+	Paths Test(fin);
+	fin.close();
 	Test.PrintData();
-	Test.FindingOptimalCost(4, 0.3, 5, 4, 0.2, 10, std::cerr);
+	
+	/*Paths Test(1, 10, 0.1);
 	Test.PrintData();
+	Test.FindingOptimalCost(4, 0.3, 5, 4, 0.2, 10, std::cerr);*/
+	/*
+	ofstream fout("out_robust_data.txt");
+	Test.PrintData(fout);
+	fout.close();
+	*/
 }
