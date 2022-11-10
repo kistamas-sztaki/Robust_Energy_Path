@@ -5,11 +5,19 @@
             "label": "C/C++: g++ build active file",
             "command": "/usr/bin/g++",
             "args": [
+                //"*.cpp",
+                "/home/anarchturandot/Documents/Lemon/lemon-main/contrib/Robust_Network_Energy/robust_energy_cplex.cpp",
+                "-D _DEBUG",
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
+
+                "-std=c++17",
+                "-Wshadow",
+                "-Wall",
+                "-Wno-unused-result",
                 
                 "-DIL_STD",
                 "-I/opt/ibm/ILOG/CPLEX_Studio_Community201/cplex/include",
@@ -23,11 +31,8 @@
                 "-lpthread",
                 "-ldl",
 
-                "-I/home/anarchturandot/Documents/Lemon/lemon-main/lemon",
-                "-I/home/anarchturandot/Documents/Lemon/lemon-main",
-                "-I/home/anarchturandot/Documents/Lemon/lemon-main/build",
-                "-L/home/anarchturandot/Documents/Lemon/lemon-main/build/lemon",
-                "-lemon"
+                "-lemon",
+                //"-lglpk"
             ],
             "options": {
                 "cwd": "${fileDirname}"
