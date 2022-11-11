@@ -286,7 +286,6 @@ void Paths::IpSolve34(vector<double> &q_tariff, int big_M) {
     cerr << "-------BETA DEFINED-------" << endl;
     #endif
 
-	IloObjective obj(env);
 	IloExpr expr_obj(env);
 	FOR(i,people_n_) {
 		FOR(j,edge_number_) {
@@ -297,7 +296,8 @@ void Paths::IpSolve34(vector<double> &q_tariff, int big_M) {
     cerr << "-------OBJECTIVE DEFINED-------" << endl;
     #endif
 
-	model.add(expr_obj);
+	IloObjective obj(env, expr_obj, IloObjective::Minimize);
+	model.add(obj);
 
 
 	IloCplex cplex(model);
@@ -310,11 +310,11 @@ void Paths::IpSolve34(vector<double> &q_tariff, int big_M) {
         //IloArray<IloNumArray> ur(env, people_n_); cplex.getValues(ur, u);
 		IloArray<IloNumArray> ur(env, people_n_);
 		FOR(i,people_n_) {
+			ur[i] = IloNumArray(env, edge_number_);
 			cplex.getValues(ur[i], u[i]);
 		}
         cout << "The solution is :" << ur << endl;
     }
-
 	expr_obj.end();
 	cplex.end();
 	x.end();
