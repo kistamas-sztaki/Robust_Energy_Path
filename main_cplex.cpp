@@ -15,7 +15,7 @@ using namespace lemon;
 
 
 int main() {
-	#ifdef _GENERATE
+	#if _GENERATE
 		Paths Test(1, 10, 0.1);
 		ofstream fout("output_robust_path.txt");
 		Test.SaveGenerated(fout);
@@ -25,6 +25,7 @@ int main() {
 	Paths Test(fin);
 	fin.close();
 	Test.FindingOptimalCost();
+	Test.PrintData();
 	//Test.PrintData();
 	
 	/*Paths Test(1, 10, 0.1);
