@@ -16,7 +16,9 @@ using namespace std;
 #ifndef ROBUST_PATH
 #define ROBUST_PATH
 
-typedef IloArray<IloNumVarArray> NumVarMatrix;
+using NumVarMatrix = IloArray<IloNumVarArray>;
+using NumMatrix = IloArray<IloNumArray>;
+using NumMatrix3D = vector<NumMatrix>;
 
 class Graph{
 	protected:
@@ -35,21 +37,22 @@ class Paths : public Graph {
     private:
         IloEnv env;
 		int people_n_;
-		vector<pair<int,int>> paths_; //Starting and Edning vertices of the people travelling
+		vector<pair<int,int>> paths_; //Starting and Ending vertices of the people travelling
 		ListDigraph::ArcMap<double> arc_cost_q_{g};
 		ListDigraph::ArcMap<double> arc_buy_p_{g};
-		vector<vector<vector<double>>> utilitys_;
-        IloModel polyhedra_q_{env}; IloNumVarArray q{env};
-        IloModel polyhedra_u_{env}; NumVarMatrix u{env};
+
+        IloModel polyhedra_q_{env}; IloNumVarArray q_{env};
+        IloModel polyhedra_u_{env}; NumVarMatrix u_{env};
+		NumMatrix3D set_of_utilities_;
+
 		//vector<vector<int>> defining_polyhedra_q_;
 		//vector<vector<int>> defining_polyhedra_u_;
-		double max_earn_;
+		double leader_max_earn_;
 		
 		pair<int,int> RandomPath();
 		
 		void RandomPaths();
 		
-		//ListDigraph:: ShortestPathCost();
 		
 		void Perturbation();
 		/*
@@ -78,9 +81,11 @@ class Paths : public Graph {
 
 		//void CreatingUPolyhedra(int many_ineq_u, double prob_u, double max_u, std::ostream &os = std::cerr);
 
-		void SettingQValue(std::ostream &os = std::cerr);
+		void InitialQValue(std::ostream &os = std::cerr);
 
-		void IpSolve34(vector<double> &q_tariff, int big_M);
+		double MinimizeLeadersEarning(vector<double> &q_tariff, int big_M, std::ostream &os = std::cerr);
+
+		void FindingTariffWithFiniteUtilities(int big_M, std::ostream &os = std::cerr);
 
 	public:
 
@@ -110,7 +115,7 @@ class Paths : public Graph {
 #define UTILITY_TOOLS
 using ll = long long int;
 
-const long long int INF = 10000000000;
+const long long int INF = std::numeric_limits<long long int>::max();
 const bool DEBUG = true;
 
 #define all(x) begin(x), end(x)
