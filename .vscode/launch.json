@@ -1,0 +1,62 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
+            "args": [
+                /*
+                "/home/anarchturandot/Documents/Lemon/lemon-main/contrib/Robust_Network_Energy/robust_energy_cplex.cpp",
+                "-D _DEBUG",
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}",
+
+                "-std=c++17",
+                "-Wshadow",
+                "-Wall",
+                "-Wno-unused-result",
+                
+                "-DIL_STD",
+                "-I/opt/ibm/ILOG/CPLEX_Studio_Community201/cplex/include",
+                "-I/opt/ibm/ILOG/CPLEX_Studio_Community201/concert/include",
+                "-L/opt/ibm/ILOG/CPLEX_Studio_Community201/cplex/lib/x86-64_linux/static_pic",
+                "-L/opt/ibm/ILOG/CPLEX_Studio_Community201/concert/lib/x86-64_linux/static_pic",
+                "-lilocplex",
+                "-lconcert",
+                "-lcplex",
+                "-lm",
+                "-lpthread",
+                "-ldl",
+
+                "-lemon",*/
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description":  "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+
+        
+    ]
+}

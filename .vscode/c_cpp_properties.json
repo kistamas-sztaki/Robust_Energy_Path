@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/ibm/ILOG/CPLEX_Studio_Community201/cplex/include",
+                "/opt/ibm/ILOG/CPLEX_Studio_Community201/concert/include",
+                "/home/anarchturandot/Documents/Lemon/lemon-main/lemon",
+                "/home/anarchturandot/Documents/Lemon/lemon-main",
+                "/home/anarchturandot/Documents/Lemon/lemon-main/build"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-O2",
+                "-DIL_STD",
+                "-lemon",
+                "-lilocplex",
+                "-lconcert",
+                "-lcplex",
+                "-lm",
+                "-lpthread",
+                "-ldl"
+            ]
+        }
+    ],
+    "version": 4
+}
