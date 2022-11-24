@@ -83,25 +83,25 @@ class Paths : public Graph {
 
 		void InitialQValue(std::ostream &os = std::cerr);
 
-		double MinimizeLeadersEarning(vector<double> &q_tariff, int big_M, std::ostream &os = std::cerr);
+		double MinimizeLeadersEarning(const vector<double> &q_tariff, const int big_M, std::ostream &os = std::cerr);
 
-		void FindingTariffWithFiniteUtilities(int big_M, std::ostream &os = std::cerr);
+		void FindingTariffWithFiniteUtilities(const int big_M, std::ostream &os = std::cerr);
 
 	public:
 
-		Paths(int people, int n, double erdos_p);
+		Paths(const int people, const int n, const double erdos_p);
 
 		Paths(std::istream &is); //You read the input more specially D graph, paths of the people, arc_cost_buy_p, Q polyhedra, U polyhedra
 
         ~Paths();
 
-		void GenerateProblem(int seed);
+		void GenerateProblem(const int seed);
 
 		void FindingOptimalCost(std::ostream &os = std::cerr);
 
-		void PrintData(std::ostream &os = std::cerr);
+		void PrintData(std::ostream &os = std::cerr) const;
         
-		void PrintDataRaw(std::ostream &os);
+		void PrintDataRaw(std::ostream &os) const;
 
 		void SaveGenerated(std::ostream &os);
     
