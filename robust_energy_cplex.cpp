@@ -194,6 +194,7 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 	#if _DEBUG
     cerr << "\n\n-------MinimizeLeadersEarning-------" << endl;
     #endif
+	char varname[20];
 
 	IloModel model(env);
 	// u \in U
@@ -206,7 +207,8 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 	FOR(i,people_n_) {
 		x[i] = IloNumVarArray(env, edge_number_);
 		FOR(j,edge_number_) {
-			x[i][j] = IloNumVar(env, 0., 1., ILOFLOAT);
+			snprintf(varname, 20, "x%d_%d", i, j);
+			x[i][j] = IloNumVar(env, 0., 1., ILOFLOAT, varname);
 		}
 	}
 
@@ -222,38 +224,42 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 	IloNumVarArray alpha_plus(env, people_n_);
 	IloNumVarArray alpha_negative(env, people_n_);
 	FOR(i,alpha_plus.getSize()) {
-		alpha_plus[i] = IloNumVar(env, 0., +INFINITY, ILOFLOAT);
-		alpha_negative[i] = IloNumVar(env, 0., +INFINITY, ILOFLOAT);
+		snprintf(varname, 20, "ap%d", i);
+		alpha_plus[i] = IloNumVar(env, 0., +INFINITY, ILOFLOAT,varname);
+		snprintf(varname, 20, "an%d", i);
+		alpha_negative[i] = IloNumVar(env, 0., +INFINITY, ILOFLOAT, varname);
 
 		//a_plus >= 0 and x_j(\rho(t_j)) >= 1
-			IloExpr expr(env);
-			//x_j(\rho(t_j)) >= 1
-			for (ListDigraph::InArcIt a(g, g.nodeFromId(paths_[i].second)); a != INVALID; ++a) {
-				expr += x[i][g.id(a)];
-			}
-			model.add(expr >= 1);
-			
-			IloNumVar helper(env, 0, 1, ILOINT);
-			model.add(alpha_plus[i] <= helper*big_M);
-			model.add(expr-1 <= (1-helper)*big_M);
-			//helper.end();
-			expr.end();
-			
+		IloExpr expr(env);
+		//x_j(\rho(t_j)) >= 1
+		for (ListDigraph::InArcIt a(g, g.nodeFromId(paths_[i].second)); a != INVALID; ++a) {
+			expr += x[i][g.id(a)];
+		}
+		model.add(expr >= 1);
+		
+		snprintf(varname, 20, "h1_%d", i);
+		IloNumVar helper(env, 0, 1, ILOINT, varname);
+		model.add(alpha_plus[i] <= helper*big_M);
+		model.add(expr-1 <= (1-helper)*big_M);
+		//helper.end();
+		expr.end();
+		
 
 
 
-		//a_minus >= 0 and -x_j(\delta(t_j))+1 >= 0
-			IloExpr expr_2(env);
-			//-x_j(\delta(t_j))+1 >= 0
-			for (ListDigraph::OutArcIt a(g, g.nodeFromId(paths_[i].first)); a != INVALID; ++a) {
-				expr_2 -= x[i][g.id(a)];
-			}
-			model.add(expr_2+1 >= 0);
-			
-			IloNumVar helper_2(env, 0, 1, ILOINT);
-			model.add(alpha_negative[i] <= helper_2*big_M);
-			model.add(expr_2+1 <= (1-helper_2)*big_M);
-			expr_2.end();
+	//a_minus >= 0 and -x_j(\delta(t_j))+1 >= 0
+		IloExpr expr_2(env);
+		//-x_j(\delta(t_j))+1 >= 0
+		for (ListDigraph::OutArcIt a(g, g.nodeFromId(paths_[i].first)); a != INVALID; ++a) {
+			expr_2 -= x[i][g.id(a)];
+		}
+		model.add(expr_2+1 >= 0);
+		
+		snprintf(varname, 20, "h2_%d", i);
+		IloNumVar helper_2(env, 0, 1, ILOINT, varname);
+		model.add(alpha_negative[i] <= helper_2*big_M);
+		model.add(expr_2+1 <= (1-helper_2)*big_M);
+		expr_2.end();
 			
 
 	}
@@ -271,8 +277,10 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 	FOR(i,people_n_) {
 		gamma[i] = IloNumVarArray(env, edge_number_);
 		FOR(j,edge_number_) {
-			gamma[i][j] = IloNumVar(env, 0., +IloInfinity, ILOFLOAT);
-			IloNumVar helper(env, 0, 1, ILOINT);
+			snprintf(varname, 20, "g%d_%d", i,j);
+			gamma[i][j] = IloNumVar(env, 0., +IloInfinity, ILOFLOAT, varname);
+			snprintf(varname, 20, "h3_%d_%d", i, j);
+			IloNumVar helper(env, 0, 1, ILOINT, varname);
 			model.add(gamma[i][j] <= helper*big_M); //\gamma_{j,e}
 			IloExpr expr_t = 1 - x[i][j];
 			model.add(expr_t <= (1-helper)*big_M); //-x_j(e)+1 \geq 0
@@ -294,7 +302,8 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 		FOR(v,n_) {
 			ListDigraph::Node curr_v = g.nodeFromId(v);
 			if(paths_[j].first != v && paths_[j].second != v) {
-				beta[j][v] = IloNumVar(env, 0., +IloInfinity, ILOFLOAT);
+				snprintf(varname, 20, "b%d_%d", j,v);
+				beta[j][v] = IloNumVar(env, 0., +IloInfinity, ILOFLOAT,varname);
 				//beta[i].insert({j,IloNumVar(env, 0., +IloInfinity, ILOFLOAT)});
 				IloExpr expr(env);
 				int is_there{0};
@@ -309,7 +318,8 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 				if(is_there) {
 					model.add(expr >= 0);
 
-					IloNumVar helper(env, 0, 1, ILOINT);
+					snprintf(varname, 20, "h4_%d_%d", j,v);
+					IloNumVar helper(env, 0, 1, ILOINT,varname);
 					model.add(beta[j][v] <= helper*big_M);
 					model.add(expr <= (1-helper)*big_M);
 					//helper.end();
@@ -343,7 +353,7 @@ double Paths::MinimizeLeadersEarning(const vector<double> &q_tariff, const int b
 			if(paths_[j].first != source && paths_[j].second != source) {
 				expr -= beta[j][source];
 			}
-			model.add(expr == q_tariff[e]- u_[j][e]);
+			model.add(expr == q_tariff[e]+ u_[j][e]);
 			expr.end();
 		}
 	}
